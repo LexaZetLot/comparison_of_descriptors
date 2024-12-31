@@ -6,7 +6,7 @@
 
 cv::Mat linearCoefficients(cv::Mat matBasis, cv::Mat vecT, cv::Mat des);
 bool isVecInNDimensionalSpace(cv::Mat vec);
-
+double LNorm(cv::Mat des1, cv::Mat des2);
 
 struct MatArray{
     cv::Mat des;

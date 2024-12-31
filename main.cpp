@@ -9,7 +9,7 @@ int main(){
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dis(0.0, 1.0);
 
-    cv::Mat des(30, 3, CV_64F);
+    cv::Mat des(1000, 3, CV_64F);
     for(int i = 0; i < des.rows; i++)
         for(int j = 0; j < des.cols; j++)
             des.at<double>(i, j) = dis(gen);
@@ -20,6 +20,7 @@ int main(){
     treeNDimensionalSpace.treeBuild();
     treeNDimensionalSpace.treeWalk();
 
+    std::cout << treeNDimensionalSpace.searchTree(des.row(32), 0.2) << std::endl;
 
 
     return 0;

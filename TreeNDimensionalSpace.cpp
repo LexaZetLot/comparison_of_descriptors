@@ -140,10 +140,52 @@ void TreeNDimensionalSpace::treeWalkRecursion(struct Tree* treeFunc, int deph){
         treeWalkRecursion(treeFunc->left, deph +1);
 }
 
-
-//TODO
 int TreeNDimensionalSpace::searchTree(cv::Mat des, double threshold){
-    return 0;
+    if(des.cols > 1)
+        cv::transpose(des, des);
+
+    cv::Mat cof;
+    struct Tree* treeSearch = &tree;
+
+
+    while(true){
+        if(treeSearch->right == NULL && treeSearch->left != NULL){
+            treeSearch = treeSearch->left;
+            continue;
+        }
+        if(treeSearch->right != NULL && treeSearch->left == NULL){
+            treeSearch = treeSearch->right;
+            continue;
+        }
+
+        if(treeSearch->right != NULL && treeSearch->left != NULL){
+            cof = linearCoefficients(treeSearch->right->mat.clone(), treeSearch->right->vec.clone(), des.clone());
+
+            if(isVecInNDimensionalSpace(cof))
+                treeSearch = treeSearch->right;
+            else
+                treeSearch = treeSearch->left;
+        }
+
+        if(treeSearch->right == NULL && treeSearch->left == NULL)
+            break;
+    }
+
+    double lNorm;
+    double lNormMin = 100.0;
+    int index;
+    for(long unsigned int i = 0; i < treeSearch->arrDes.size(); i++){
+        lNorm = LNorm(treeSearch->arrDes[i].des, des);
+        if(lNorm < lNormMin){
+            lNormMin = lNorm;
+            index = i;
+        }
+    }
+
+    if(lNormMin < threshold)
+        return treeSearch->arrDes[index].index;
+    else
+        return 0;
 }
 
 
