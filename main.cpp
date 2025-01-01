@@ -1,26 +1,32 @@
 #include "mainHederFile.hpp"
-#include <random>
-#include <iostream>
 #include <opencv2/opencv.hpp>
 
 
 int main(){
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dis(0.0, 1.0);
+    cv::Mat img1 = cv::imread("img1.jpg", cv::IMREAD_COLOR);
+    cv::Mat img2 = cv::imread("img2.jpg", cv::IMREAD_COLOR);
 
-    cv::Mat des(1000, 3, CV_64F);
-    for(int i = 0; i < des.rows; i++)
-        for(int j = 0; j < des.cols; j++)
-            des.at<double>(i, j) = dis(gen);
+    cv::Ptr<cv::SIFT> sift = cv::SIFT::create();
 
+    std::vector<cv::KeyPoint> kep1;
+    std::vector<cv::KeyPoint> kep2;
+    cv::Mat des1;
+    cv::Mat des2;
 
-    TreeNDimensionalSpace treeNDimensionalSpace(des, 4);
+    sift->detectAndCompute(img1, cv::noArray(), kep1, des1);
+    sift->detectAndCompute(img2, cv::noArray(), kep2, des2);
 
-    treeNDimensionalSpace.treeBuild();
-    treeNDimensionalSpace.treeWalk();
+    ComparisonOfDescriptors comparisonOfDescriptors(10, 0.4);
+    std::vector<cv::DMatch> matches = comparisonOfDescriptors.match(des1, des2);
 
-    std::cout << treeNDimensionalSpace.searchTree(des.row(32), 0.2) << std::endl;
+    cv::Mat imgMatches;
+    cv::drawMatches(img1, kep1, img2, kep2, matches, imgMatches,
+                    cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
+                    cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+    cv::imshow("img", imgMatches);
+    cv::imwrite("imgMatch.jpg", imgMatches);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
 
 
     return 0;

@@ -4,8 +4,9 @@
 #include <iostream>
 
 
-TreeNDimensionalSpace::TreeNDimensionalSpace(cv::Mat mat, int spaceCapacityThreshold){
-    sCT = spaceCapacityThreshold;
+TreeNDimensionalSpace::TreeNDimensionalSpace(cv::Mat mat, int spaceCapacityThreshold, double treshold){
+    this->spaceCapacityThreshold = spaceCapacityThreshold;
+    this->treshold = treshold;
 
     tree.right = NULL;
     tree.left = NULL;
@@ -55,9 +56,9 @@ void TreeNDimensionalSpace::treeBuild(){
     }
 
 
-    if(tree.right->arrDes.size() > (long unsigned int)sCT)
+    if(tree.right->arrDes.size() > (long unsigned int)spaceCapacityThreshold)
         buildTreeRecursion(tree.right, 1, 1.0);
-    if(tree.left->arrDes.size() > (long unsigned int)sCT)
+    if(tree.left->arrDes.size() > (long unsigned int)spaceCapacityThreshold)
         buildTreeRecursion(tree.left, 1, 1.0);
 }
 
@@ -100,9 +101,9 @@ void TreeNDimensionalSpace::buildTreeRecursion(struct Tree* treeFunc, int index,
     }
 
 
-    if(treeFunc->right->arrDes.size() > (long unsigned int)sCT)
+    if(treeFunc->right->arrDes.size() > (long unsigned int)spaceCapacityThreshold)
         buildTreeRecursion(treeFunc->right, index + 1, sizeBasis);
-    if(treeFunc->left->arrDes.size() > (long unsigned int)sCT)
+    if(treeFunc->left->arrDes.size() > (long unsigned int)spaceCapacityThreshold)
         buildTreeRecursion(treeFunc->left, index + 1, sizeBasis);
 }
 
@@ -140,7 +141,7 @@ void TreeNDimensionalSpace::treeWalkRecursion(struct Tree* treeFunc, int deph){
         treeWalkRecursion(treeFunc->left, deph +1);
 }
 
-int TreeNDimensionalSpace::searchTree(cv::Mat des, double threshold){
+std::vector<double> TreeNDimensionalSpace::searchTree(cv::Mat des){
     if(des.cols > 1)
         cv::transpose(des, des);
 
@@ -174,6 +175,8 @@ int TreeNDimensionalSpace::searchTree(cv::Mat des, double threshold){
     double lNorm;
     double lNormMin = 100.0;
     int index;
+
+
     for(long unsigned int i = 0; i < treeSearch->arrDes.size(); i++){
         lNorm = LNorm(treeSearch->arrDes[i].des, des);
         if(lNorm < lNormMin){
@@ -182,13 +185,35 @@ int TreeNDimensionalSpace::searchTree(cv::Mat des, double threshold){
         }
     }
 
-    if(lNormMin < threshold)
-        return treeSearch->arrDes[index].index;
+    if(lNormMin < treshold)
+        return std::vector<double>() = {(double)treeSearch->arrDes[index].index, lNormMin};
     else
-        return 0;
+        return std::vector<double>() = {-1.0, -1.0};
 }
 
 
+
+
+void TreeNDimensionalSpace::setTree(struct Tree tree){
+    this->tree = tree;
+}
+
 struct Tree TreeNDimensionalSpace::getTree(){
     return tree;
+}
+
+void TreeNDimensionalSpace::setSpaceCapacityThreshold(int spaceCapacityThreshold){
+    this->spaceCapacityThreshold = spaceCapacityThreshold;
+}
+
+int TreeNDimensionalSpace::getSpaceCapacityThreshold(){
+    return spaceCapacityThreshold;
+}
+
+void TreeNDimensionalSpace::setThreshold(double treshold){
+    this->treshold = treshold;
+}
+
+double TreeNDimensionalSpace::getThreshold(){
+    return treshold;
 }
